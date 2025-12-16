@@ -3,7 +3,9 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { createClient } from '@supabase/supabase-js';
-import html2pdf from 'html2pdf.js';
+
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -150,11 +152,14 @@ export default function LeadsPage() {
     document.body.removeChild(link);
   };
 
-  const exportToPDF = () => {
+  const exportToPDF = async () => {
     if (filteredLeads.length === 0) {
       alert('لا توجد بيانات للتصدير');
       return;
     }
+
+    // Dynamic import to avoid SSR issues
+    const html2pdf = (await import('html2pdf.js')).default;
 
     // Create HTML content for PDF
     const filterInfo = [];
