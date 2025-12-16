@@ -37,6 +37,8 @@ export default function LeadsPage() {
   const [fromDate, setFromDate] = useState('');
   const [toDate, setToDate] = useState('');
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [editLead, setEditLead] = useState<Lead | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     loadLeads();
@@ -231,6 +233,58 @@ export default function LeadsPage() {
     html2pdf().set(opt).from(element).save().then(() => {
       document.body.removeChild(element);
     });
+  };
+
+  const deleteLead = async (id: string) => {
+    if (!confirm('هل أنت متأكد من حذف هذا العميل؟')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('lead_extractions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Remove from local state
+      setLeads(leads.filter(lead => lead.id !== id));
+      alert('تم حذف العميل بنجاح');
+    } catch (err: any) {
+      console.error('Error deleting lead:', err);
+      alert('فشل في حذف العميل');
+    }
+  };
+
+  const updateLead = async () => {
+    if (!editLead) return;
+
+    try {
+      const { error } = await supabase
+        .from('lead_extractions')
+        .update({
+          name: editLead.name,
+          email: editLead.email,
+          phone: editLead.phone,
+          job_title_target: editLead.job_title_target,
+          experience_years_estimate: editLead.experience_years_estimate,
+          level: editLead.level,
+          raw_notes: editLead.raw_notes,
+        })
+        .eq('id', editLead.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setLeads(leads.map(lead => lead.id === editLead.id ? editLead : lead));
+      setIsEditing(false);
+      setEditLead(null);
+      alert('تم تحديث البيانات بنجاح');
+    } catch (err: any) {
+      console.error('Error updating lead:', err);
+      alert('فشل في تحديث البيانات');
+    }
   };
 
   const getLevelColor = (level: string | null) => {
@@ -470,13 +524,33 @@ export default function LeadsPage() {
                       <td className="px-6 py-4 text-gray-600 text-sm whitespace-nowrap">
                         {formatDate(lead.created_at)}
                       </td>
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          onClick={() => setSelectedLead(lead)}
-                          className="text-purple-600 hover:text-purple-700 font-medium"
-                        >
-                          عرض التفاصيل
-                        </button>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2 justify-center">
+                          <button
+                            onClick={() => setSelectedLead(lead)}
+                            className="px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm font-medium transition-colors"
+                            title="عرض التفاصيل"
+                          >
+                            👁️ عرض
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditLead(lead);
+                              setIsEditing(true);
+                            }}
+                            className="px-3 py-1 bg-green-100 text-green-700 hover:bg-green-200 rounded-lg text-sm font-medium transition-colors"
+                            title="تعديل"
+                          >
+                            ✏️ تعديل
+                          </button>
+                          <button
+                            onClick={() => deleteLead(lead.id)}
+                            className="px-3 py-1 bg-red-100 text-red-700 hover:bg-red-200 rounded-lg text-sm font-medium transition-colors"
+                            title="حذف"
+                          >
+                            🗑️ حذف
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -566,6 +640,123 @@ export default function LeadsPage() {
                   <label className="block text-sm font-semibold text-gray-500 mb-1">آخر تحديث</label>
                   <p className="text-sm text-gray-700">{formatDate(selectedLead.updated_at)}</p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal for Edit Lead */}
+      {isEditing && editLead && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => {
+          setIsEditing(false);
+          setEditLead(null);
+        }}>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-gradient-to-r from-green-600 to-emerald-600 text-white p-6 rounded-t-2xl">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">تعديل بيانات العميل</h2>
+                <button onClick={() => {
+                  setIsEditing(false);
+                  setEditLead(null);
+                }} className="text-white hover:text-gray-200 text-2xl">
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Edit Form */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">الاسم</label>
+                  <input
+                    type="text"
+                    value={editLead.name || ''}
+                    onChange={(e) => setEditLead({...editLead, name: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">البريد الإلكتروني</label>
+                  <input
+                    type="email"
+                    value={editLead.email || ''}
+                    onChange={(e) => setEditLead({...editLead, email: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">رقم الهاتف</label>
+                  <input
+                    type="tel"
+                    value={editLead.phone || ''}
+                    onChange={(e) => setEditLead({...editLead, phone: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">المسمى الوظيفي</label>
+                  <input
+                    type="text"
+                    value={editLead.job_title_target || ''}
+                    onChange={(e) => setEditLead({...editLead, job_title_target: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">سنوات الخبرة</label>
+                  <input
+                    type="number"
+                    value={editLead.experience_years_estimate || 0}
+                    onChange={(e) => setEditLead({...editLead, experience_years_estimate: parseInt(e.target.value) || 0})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">المستوى المهني</label>
+                  <select
+                    value={editLead.level || ''}
+                    onChange={(e) => setEditLead({...editLead, level: e.target.value})}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                  >
+                    <option value="">اختر المستوى</option>
+                    <option value="Junior">Junior</option>
+                    <option value="Mid-Level">Mid-Level</option>
+                    <option value="Senior">Senior</option>
+                    <option value="Manager">Manager</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">ملاحظات</label>
+                <textarea
+                  value={editLead.raw_notes || ''}
+                  onChange={(e) => setEditLead({...editLead, raw_notes: e.target.value})}
+                  rows={4}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent text-gray-900"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 pt-4 border-t">
+                <button
+                  onClick={updateLead}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:shadow-lg transition-all"
+                >
+                  💾 حفظ التعديلات
+                </button>
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditLead(null);
+                  }}
+                  className="flex-1 px-6 py-3 bg-gray-600 text-white font-semibold rounded-xl hover:bg-gray-700 transition-all"
+                >
+                  إلغاء
+                </button>
               </div>
             </div>
           </div>
