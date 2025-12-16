@@ -80,9 +80,6 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// تكوين Next.js لقبول الملفات الكبيرة
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
+// Route segment config for Next.js 14 App Router
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
