@@ -45,6 +45,10 @@ CREATE POLICY "Allow public insert on leads" ON lead_extractions
 CREATE POLICY "Allow public update on leads" ON lead_extractions
     FOR UPDATE USING (true);
 
+-- السماح بالحذف للجميع
+CREATE POLICY "Allow public delete on leads" ON lead_extractions
+    FOR DELETE USING (true);
+
 -- دالة لتحديث updated_at تلقائياً
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$

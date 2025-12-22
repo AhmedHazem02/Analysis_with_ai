@@ -32,7 +32,7 @@ export default function Home() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {/* CV Analyzer Card */}
           <Link href="/cv-analyzer">
             <div className="bg-white rounded-2xl shadow-lg p-8 card-hover cursor-pointer border-2 border-transparent hover:border-blue-500">
@@ -305,6 +305,102 @@ export default function Home() {
               </ul>
               <div className="mt-6 flex items-center text-green-600 font-semibold">
                 <span>عرض قاعدة البيانات</span>
+                <svg
+                  className="w-5 h-5 mr-2"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </div>
+            </div>
+          </Link>
+
+          {/* Old Customers Database Card */}
+          <Link href="/olds">
+            <div className="bg-white rounded-2xl shadow-lg p-8 card-hover cursor-pointer border-2 border-transparent hover:border-orange-500">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-orange-100 rounded-xl flex items-center justify-center">
+                  <svg
+                    className="w-8 h-8 text-orange-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  العملاء القدامى
+                </h2>
+              </div>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                عرض وإدارة قاعدة بيانات العملاء القدامى مع إمكانية البحث بالاسم
+                والمسمى الوظيفي والتصفية حسب التاريخ.
+              </p>
+              <ul className="space-y-3 text-sm text-gray-600">
+                <li className="flex items-start gap-2">
+                  <svg
+                    className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  <span>بيانات العملاء الكاملة</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg
+                    className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  <span>فلترة حسب المسمى الوظيفي</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <svg
+                    className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                  <span>تصدير PDF و CSV</span>
+                </li>
+              </ul>
+              <div className="mt-6 flex items-center text-orange-600 font-semibold">
+                <span>عرض العملاء القدامى</span>
                 <svg
                   className="w-5 h-5 mr-2"
                   fill="none"

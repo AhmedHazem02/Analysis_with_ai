@@ -241,19 +241,29 @@ export default function LeadsPage() {
     }
 
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('lead_extractions')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
 
-      if (error) throw error;
+      console.log('Delete result:', { data, error });
+
+      if (error) {
+        console.error('Delete error details:', error);
+        alert(`فشل في حذف العميل: ${error.message}\n\nالتفاصيل: ${JSON.stringify(error)}`);
+        return;
+      }
 
       // Remove from local state
       setLeads(leads.filter(lead => lead.id !== id));
       alert('تم حذف العميل بنجاح');
+
+      // Reload to make sure data is synced
+      await loadLeads();
     } catch (err: any) {
       console.error('Error deleting lead:', err);
-      alert('فشل في حذف العميل');
+      alert(`حدث خطأ: ${err.message}`);
     }
   };
 
